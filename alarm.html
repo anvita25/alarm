@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alarm Clock App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #currentTime {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #alarmList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .alarm {
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #alarmTimePicker {
+      margin-bottom: 10px;
+    }
+
+    #alarmToneSelector {
+      margin-bottom: 10px;
+    }
+
+    #alarmControls {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div id="currentTime"></div>
+    <label for="alarmTimePicker">Set Alarm Time:</label>
+    <input type="time" id="alarmTimePicker">
+    <br>
+    <label for="alarmToneSelector">Choose Alarm Tone:</label>
+    <select id="alarmToneSelector">
+      <option value="tone1">Alarm Tone 1</option>
+      <option value="tone2">Alarm Tone 2</option>
+      <!-- Add more options as needed -->
+    </select>
+    <br>
+    <button onclick="setAlarm()">Set Alarm</button>
+  </div>
+
+  <ul id="alarmList"></ul>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', updateTime);
+    setInterval(updateTime, 1000);
+
+    function updateTime() {
+      const currentTime = new Date();
+      const formattedTime = currentTime.toLocaleTimeString();
+      document.getElementById('currentTime').textContent = Current Time: ${formattedTime};
+    }
+
+    function setAlarm() {
+      const alarmTime = document.getElementById('alarmTimePicker').value;
+      const alarmTone = document.getElementById('alarmToneSelector').value;
+
+      if (!alarmTime) {
+        alert('Please select a valid alarm time.');
+        return;
+      }
+
+      const alarms = getAlarms();
+      alarms.push({ time: alarmTime, tone: alarmTone, enabled: true });
+      saveAlarms(alarms);
+      displayAlarms();
+    }
+
+    function displayAlarms() {
+      const alarmList = document.getElementById('alarmList');
+      alarmList.innerHTML = '';
+
+      const alarms = getAlarms();
+      alarms.forEach((alarm, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'alarm';
+
+        const time = document.createElement('span');
+        time.textContent = Alarm Time: ${alarm.time};
+
+        const tone = document.createElement('span');
+        tone.textContent = Alarm Tone: ${alarm.tone};
+
+        const toggleSwitch = document.createElement('input');
+        toggleSwitch.type = 'checkbox';
+        toggleSwitch.checked = alarm.enabled;
+        toggleSwitch.addEventListener('change', () => toggleAlarm(index));
+
+        const snoozeButton = document.createElement('button');
+        snoozeButton.textContent = 'Snooze';
+        snoozeButton.addEventListener('click', () => snoozeAlarm(index));
+
+        const dismissButton = document.createElement('button');
+        dismissButton.textContent = 'Dismiss';
+        dismissButton.addEventListener('click', () => dismissAlarm(index));
+
+        listItem.appendChild(time);
+        listItem.appendChild(tone);
+        listItem.appendChild(toggleSwitch);
+        listItem.appendChild(snoozeButton);
+        listItem.appendChild(dismissButton);
+        alarmList.appendChild(listItem);
+      });
+    }
+
+    function toggleAlarm(index) {
+      const alarms = getAlarms();
+      alarms[index].enabled = !alarms[index].enabled;
+      saveAlarms(alarms);
+      displayAlarms();
+    }
+
+    function snoozeAlarm(index) {
+      alert(Snoozed Alarm at ${getAlarms()[index].time});
+      // You can implement additional logic for snoozing
+    }
+
+    function dismissAlarm(index) {
+      alert(Dismissed Alarm at ${getAlarms()[index].time});
+      // You can implement additional logic for dismissing
+    }
+
+    function saveAlarms(alarms) {
+      localStorage.setItem('alarms', JSON.stringify(alarms));
+    }
+
+    function getAlarms() {
+      const storedAlarms = localStorage.getItem('alarms');
+      return storedAlarms ? JSON.parse(storedAlarms) : [];
+    }
+
+    document.addEventListener('DOMContentLoaded', displayAlarms);
+  </script>
+</body>
+</html>
